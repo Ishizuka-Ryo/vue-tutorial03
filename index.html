@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <!-- テンプレート構文 -->
+
+    <!-- v-onceディレクティブでデータ更新時の更新は行わず一度だけ展開する -->
+    <span v-once>This will never change : {{msg}}</span>
+
+    <!-- 生のhtml -->
+    <p>Using mustaches:{{rawHtml}}</p>
+    <p>Using v-html directive: <span v-html="rawHtml"></span></p>
+
+    <!-- 属性 -->
+    <div v-bind id="dynamicId"></div>
+
+    <!-- 算出プロパティ -->
+    <!-- 複雑なロジックに使う -->
+    <div id="example">
+        <p>Original message: "{{message}}"</p>
+        <p>Computed reversed message : "{{reverseMessage}}"</p>
+    </div>
+
+    <!-- 監視プロパティvs算出プロパティ -->
+
+    <div id="demo">{{fullName}}</div>
+
+    <!-- 算出プロパティの場合 -->
+    <div id="demoo">{{fullName}}</div>
+
+    <!-- 算出セッター関数 -->
+    <div id="demooo">{{fullName}}</div>
+</body>
+<script>    
+    var vm = new Vue({
+        el:"#example",
+        data:{
+            message:"hello"
+        },
+        // 算出
+        computed: {
+            reverseMessage: function(){
+                return this.message.split('').reverse().join('')
+            }
+        }
+    })
+    vm.message = 'goodbye';
+    console.log(vm.reverseMessage)
+
+    // 監視プロパティvs算出プロパティ
+    var vm = new Vue({
+        el:'#demoo',
+        data:{
+            firstName: 'Foo',
+            lastName: 'Bar',
+            fullName: 'Foo Bar'
+        },
+        watch:{
+            firstName: function(val){
+                this.firstName = val + '' + this.lastName
+            },
+            lastName :function(val){
+                this.lastName = firstName + '' + val
+            }
+        }
+    })
+
+    var vm = new Vue({
+        el:'demoo',
+        data:{
+            firstName: 'Foo',
+            lastName: 'Boo'
+        },
+        computed:{
+            fullName:function(){
+                return this.firstName + '' + this.lastName
+            }
+        }
+    
+    })
+
+    // 算出セッター関数
+    var vm = new Vue({
+        el:'demooo',
+        data:{
+            firstName:'Foo',
+            lastName:'Boo'
+        },
+        computed:{
+            // getter関数
+            get: function(){
+                return this.firstName + '' + this.lastName
+            },
+            //    setter関数
+            set: function(newValue) {
+                  var names = newValue.split('')  
+            }
+        }
+
+    })
+
+
+    
+</script>
+</html>
