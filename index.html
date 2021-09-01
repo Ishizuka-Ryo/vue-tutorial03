@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="jp">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
     <title>Document</title>
 </head>
+
 <body>
     <!-- テンプレート構文 -->
 
@@ -36,16 +40,35 @@
 
     <!-- 算出セッター関数 -->
     <div id="demooo">{{fullName}}</div>
+
+    <!-- ウォッチャ -->
+    <!-- データが変化するのに応じて非同期やコストの高い処理を実行したい時に便利 -->
+    <div id="watch-example">
+        <p>
+            Ask a yes/no question:
+            <input v-model="question">
+        </p>
+        <p>{{answer}}</p>
+    </div>
+
+
 </body>
-<script>    
+
+
+
+
+
+
+
+<script>
     var vm = new Vue({
-        el:"#example",
-        data:{
-            message:"hello"
+        el: "#example",
+        data: {
+            message: "hello"
         },
         // 算出
         computed: {
-            reverseMessage: function(){
+            reverseMessage: function () {
                 return this.message.split('').reverse().join('')
             }
         }
@@ -55,57 +78,91 @@
 
     // 監視プロパティvs算出プロパティ
     var vm = new Vue({
-        el:'#demoo',
-        data:{
+        el: '#demoo',
+        data: {
             firstName: 'Foo',
             lastName: 'Bar',
             fullName: 'Foo Bar'
         },
-        watch:{
-            firstName: function(val){
+        watch: {
+            firstName: function (val) {
                 this.firstName = val + '' + this.lastName
             },
-            lastName :function(val){
+            lastName: function (val) {
                 this.lastName = firstName + '' + val
             }
         }
     })
 
     var vm = new Vue({
-        el:'demoo',
-        data:{
+        el: 'demoo',
+        data: {
             firstName: 'Foo',
             lastName: 'Boo'
         },
-        computed:{
-            fullName:function(){
+        computed: {
+            fullName: function () {
                 return this.firstName + '' + this.lastName
             }
         }
-    
+
     })
 
     // 算出セッター関数
     var vm = new Vue({
-        el:'demooo',
-        data:{
-            firstName:'Foo',
-            lastName:'Boo'
+        el: 'demooo',
+        data: {
+            firstName: 'Foo',
+            lastName: 'Boo'
         },
-        computed:{
+        computed: {
             // getter関数
-            get: function(){
+            get: function () {
                 return this.firstName + '' + this.lastName
             },
             //    setter関数
-            set: function(newValue) {
-                  var names = newValue.split('')  
+            set: function (newValue) {
+                var names = newValue.split('')
             }
         }
 
     })
 
-
-    
+    // ウォッチャ
+    var watchExampleVM = new Vue({
+        el: '#watch-example',
+        data: {
+            question: '',
+            answer: 'I cannot give you an answer until you ask a question!'
+        },
+        // questionが変化するごとに実行される
+        watch: {
+            question: function (newQuestion, Oldquestion) {
+                this.answer = 'Waiting for you to stop typing...'
+                this.debouncedGetAnswer()
+            }
+        },
+        created: function () {
+            this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
+        },
+        methods: {
+            getAnswer: function () {
+                if (this.question.indexOf('?') === -1) {
+                    this.answer = 'Questions usually contain a question mark. ;-)'
+                    return
+                }
+                this.answer = 'Thinking'
+                var vm = this
+                axios.get('https://yesno.wtf/api')
+                    .then(function (response) {
+                        vm.answer = _.capitalize(response.data.answer)
+                    })
+                    .catch(function (error) {
+                        vm.answer = 'Error! Could not reach the API. ' + error
+                    })
+            }
+        }
+    })
 </script>
+
 </html>
